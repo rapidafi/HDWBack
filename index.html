@@ -130,7 +130,7 @@
         <tr data-ng-repeat="d in datas">
           <td class="color2"><span style="font-size:xx-small;">{{$index+1}}</span></td>
           <td>{{d.measurement}}</td>
-          <td>{{d.station}}</td>
+          <td>{{d.data.metadata.station}} ({{d.station}})</td>
           <td>{{d.data.metadata.municipality}}</td>
           <td>{{d.data.latest|json}}</td>
           <td>{{d.data.today|json}}</td>
