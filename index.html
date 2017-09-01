@@ -26,48 +26,50 @@
     // PRIVAATIT FUNKTIOT
     //
     
-    // esim. koodiston (näytettävien koodien) vaihto
     function reset() {
-      $scope.koodit = [];
-      $scope.koodistoLataa = true;
-      fetchService("blaablaa");
+      $scope.datas = [];
+      $scope.datasLoad = true;
+      fetchDatas();
     }
-    // aloita alusta (paitsi koodistojen lataus)
     function resetAll() {
-      $scope.koodistot = [];
-      $scope.koodiOrder = 'arvo';
-      $scope.koodiOrderReverse = false;
      reset();
     }
     
-    // arvojen hakeva ja asettava funktio
-    function fetchService(service) {
-      if(!service) return;
-      var uri = $scope.serviceuri;//...TODO
-      $http.get(uri).then(function (response){
-        $scope.koodit.push(response.data);
-        /*
-        angular.forEach(response.data, function(robj,rkey){
-          $scope.koodit.push(robj); // viedään löytynyt arvo näytille
+    function fetchDatas() {
+      let baseuri = "http://helsinkidesignweek.rapida.fi/ilmanlaatu.php";//?p="+"nitrogendioxide"+"&ss="+"425";
+      let measurements = [
+        "nitrogendioxide", //typpioksidi
+        "particulateslt10um", // hengitettävät hiukkaset
+        "particulateslt2_5um", // pienhiukkaset
+        "carbonmonoxide", // hiilimonoksidi
+        "ozone", //otsoni
+        "sulphurdioxide", //rikkidioksidi
+        "odorsulphurcompounds", // haisevat rikkiyhdisteet (TRS)
+        "qualityIndex" // ilmanlaatuindeksi
+      ];
+      let stations = [
+        "425",// Helsinki: Kallio 2 60.1874667 24.9505167
+        "564",// Helsinki: Mannerheimintie 60.169643 24.939261
+        "580",// Helsinki: Smear III, Kumpula
+        "206",// Helsinki: Vallila 1 60.193665 24.963942
+        "781" // Helsinki: Vartiokylä Huivipolku 60.223886 25.102528
+      ];
+
+      angular.forEach(measurements, function(measurement,mi){
+        angular.forEach(stations, function(station,si){
+          let uri = baseuri+"?p="+measurement+"&ss="+station;
+          $http.get(uri).then(function (response){
+            $scope.datas.push(response.data);
+            /*
+            angular.forEach(response.data, function(robj,rkey){
+              $scope.koodit.push(robj); // viedään löytynyt arvo näytille
+            });
+            //*/
+            $scope.datasLoad = false;
+          });
         });
-        //*/
-        $scope.koodistoLataa = false;
       });
     }
-    
-    //
-    // SCOPE
-    //
-    
-    //
-    // ASETUKSET & ALUSTUS
-    //
-    
-    $scope.serviceuri = "http://helsinkidesignweek.rapida.fi/ilmanlaatu.php?p="+"nitrogendioxide"+"&ss="+"425";
-    $scope.services = [
-      "nitrogendioxide"
-    ];
-    
     resetAll();
     
   });//-koodiController
@@ -115,18 +117,18 @@
         </tr>
       </thead>
       <tbody>
-        <tr data-ng-repeat="o in koodit">
+        <tr data-ng-repeat="d in datas">
           <td class="color2"><span style="font-size:xx-small;">{{$index+1}}</span></td>
-          <td>{{o.metadata.station}}</td>
-          <td>{{o.metadata.municipality}}</td>
-          <td class="hidden-xs">{{o.latest|json}}</td>
-          <td class="hidden-xs">{{o|json}}</td>
+          <td>{{d.metadata.station}}</td>
+          <td>{{d.metadata.municipality}}</td>
+          <td class="hidden-xs">{{d.latest|json}}</td>
+          <td class="hidden-xs">{{d|json}}</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <div class="col-xs-12 text-center"><span class="fa fa-cog fa-spin fa-5x" data-ng-show="koodistoLataa"></span></div>
-  <div class="col-xs-12">{{koodit|json}}</div>
+  <div class="col-xs-12 text-center"><span class="fa fa-cog fa-spin fa-5x" data-ng-show="datasLoad"></span></div>
+  <div class="col-xs-12">{{datas|json}}</div>
 </div>
 
 <div class="row">
