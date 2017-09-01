@@ -59,16 +59,23 @@
         angular.forEach(stations, function(station,si){
           let uri = baseuri+"?p="+measurement+"&ss="+station;
           $http.get(uri).then(function (response){
-            $scope.datas.push(response.data);
-            /*
-            angular.forEach(response.data, function(robj,rkey){
-              $scope.koodit.push(robj); // viedään löytynyt arvo näytille
-            });
-            //*/
-            $scope.datasLoad = false;
+            // drop errors (not found or such)
+            if (!response.data.error) {
+              let obj = {};
+              obj.measurement = measurement;
+              obj.station = station;
+              obj.data = response.data;
+              $scope.datas.push(obj);
+              /*
+              angular.forEach(response.data, function(robj,rkey){
+                $scope.koodit.push(robj); // viedään löytynyt arvo näytille
+              });
+              //*/
+            }
           });
         });
       });
+      $scope.datasLoad = false;
     }
     resetAll();
     
@@ -102,33 +109,36 @@
           <th style="width:1%; vertical-align:top;">
             <span style="font-size:xx-small;">#</span>
           </th>
-          <th style="width:19%">
+          <th style="width:10%">
+            measurement
+          </th>
+          <th style="width:10%">
             station
           </th>
-          <th style="width:50%">
+          <th style="width:10%">
             municipality
           </th>
-          <th style="width:15%" class="hidden-xs">
+          <th style="width:30%">
             latest
           </th>
-          <th style="width:15%" class="hidden-xs">
-            full
+          <th style="width:40%">
+            today
           </th>
         </tr>
       </thead>
       <tbody>
         <tr data-ng-repeat="d in datas">
           <td class="color2"><span style="font-size:xx-small;">{{$index+1}}</span></td>
-          <td>{{d.metadata.station}}</td>
-          <td>{{d.metadata.municipality}}</td>
-          <td class="hidden-xs">{{d.latest|json}}</td>
-          <td class="hidden-xs">{{d|json}}</td>
+          <td>{{d.measurement}}</td>
+          <td>{{d.station}}</td>
+          <td>{{d.data.metadata.municipality}}</td>
+          <td>{{d.data.latest|json}}</td>
+          <td>{{d.data.today|json}}</td>
         </tr>
       </tbody>
     </table>
   </div>
   <div class="col-xs-12 text-center"><span class="fa fa-cog fa-spin fa-5x" data-ng-show="datasLoad"></span></div>
-  <div class="col-xs-12">{{datas|json}}</div>
 </div>
 
 <div class="row">
